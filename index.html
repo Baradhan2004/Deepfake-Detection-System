@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiGAN Detection | Advanced Image Analysis</title>
+    <meta name="description" content="State-of-the-art deepfake detection and image authentication platform.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background-elements">
+        <div class="glow-orb primary"></div>
+        <div class="glow-orb secondary"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12h4l3-9 5 18 3-9h5"/>
+            </svg>
+            <h1>MultiGAN Detection</h1>
+        </div>
+        <div class="header-actions">
+            <span class="status-badge">
+                <span class="status-dot"></span>
+                System Online
+            </span>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="upload-section" id="uploadSection">
+            <div class="glass-panel upload-container" id="dropZone">
+                <input type="file" id="fileInput" accept="image/jpeg, image/png, image/webp" hidden>
+                <div class="upload-content">
+                    <div class="upload-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h2>Upload Image for Analysis</h2>
+                    <p>Drag and drop your image here, or <button id="browseBtn" class="text-btn">browse</button></p>
+                    <span class="file-hint">Supports JPG, PNG, WEBP up to 20MB</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="analysis-section hidden" id="analysisSection">
+            <div class="grid-layout">
+                <!-- Image Preview and Scanning Area -->
+                <div class="glass-panel image-panel" style="display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; gap: 1rem;">
+                    <div class="image-wrapper" style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+                        <img id="previewImage" src="" alt="Analyzed Subject" style="max-height: 500px; width: auto; max-width: 100%; border-radius: 12px; display: block;">
+                        <img id="heatmapImage" src="" alt="Grad-CAM Heatmap" class="hidden" style="max-height: 500px; width: auto; max-width: 100%; border-radius: 12px; display: block;">
+                        <div class="scanner-overlay" id="scannerOverlay">
+                            <div class="scanner-line"></div>
+                        </div>
+                    </div>
+                    <div id="imageToggles" class="hidden mt-4" style="display: flex; justify-content: center; gap: 10px;">
+                        <button id="btnOriginal" class="primary-btn small">Original</button>
+                        <button id="btnHeatmap" class="primary-btn small" style="opacity: 0.6;">Heatmap (Grad-CAM)</button>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div class="results-panel">
+                    
+                    <!-- Processing State -->
+                    <div id="processingState" class="processing-state">
+                        <div class="spinner"></div>
+                        <h3>Analyzing Neural Artifacts...</h3>
+                        <p class="processing-detail" id="processingDetail">Initializing system...</p>
+                        <div class="progress-bar-container mt-4">
+                            <div class="progress-bar" id="overallProgress"></div>
+                        </div>
+                    </div>
+
+                    <!-- Final Results -->
+                    <div id="finalResults" class="final-results hidden">
+                        <!-- Primary Prediction Card -->
+                        <div class="glass-panel highlight-card">
+                            <div class="prediction-header">
+                                <h3>Analysis Result</h3>
+                                <div class="badge" id="resultBadge">Authentic</div>
+                            </div>
+                            <div class="prediction-score">
+                                <span class="score-value" id="confidenceScore">98.5</span>
+                                <span class="score-unit">%</span>
+                            </div>
+                            <p class="prediction-interpretation" id="confidenceInterpretation">High confidence prediction</p>
+                            
+                            <div class="probability-bars">
+                                <div class="prob-row">
+                                    <div class="prob-labels">
+                                        <span>AI Generated</span>
+                                        <span id="aiProbText">1.5%</span>
+                                    </div>
+                                    <div class="prob-track">
+                                        <div class="prob-fill fake-fill" id="aiProbFill" style="width: 1.5%"></div>
+                                    </div>
+                                </div>
+                                <div class="prob-row">
+                                    <div class="prob-labels">
+                                        <span>Real/Authentic</span>
+                                        <span id="realProbText">98.5%</span>
+                                    </div>
+                                    <div class="prob-track">
+                                        <div class="prob-fill real-fill" id="realProbFill" style="width: 98.5%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Network Analysis Info -->
+                        <div class="glass-panel info-card mt-4">
+                            <h3>Network Architecture Analysis</h3>
+                            <ul class="info-list">
+                                <li>
+                                    <span class="info-label">Model Architecture</span>
+                                    <span class="info-value">EfficientNet-B0 (MultiGAN)</span>
+                                </li>
+                                <li>
+                                    <span class="info-label">Target Layer</span>
+                                    <span class="info-value">Conv2dNormActivation</span>
+                                </li>
+                                <li>
+                                    <span class="info-label">Feature Vector</span>
+                                    <span class="info-value">1280-Dimensional</span>
+                                </li>
+                                <li>
+                                    <span class="info-label">Heatmap Extraction</span>
+                                    <span class="info-value">Gradient-weighted CAM</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Detailed Metrics Card -->
+                        <div class="glass-panel metrics-card mt-4">
+                            <h3>Detailed Metrics</h3>
+                            <div class="metrics-grid">
+                                <div class="metric-item">
+                                    <span class="metric-label">Facial Artifacts</span>
+                                    <span class="metric-score" id="metricFace">0.02</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Lighting Consistency</span>
+                                    <span class="metric-score" id="metricLighting">0.96</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Texture Variance</span>
+                                    <span class="metric-score" id="metricTexture">0.88</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Frequency Domain</span>
+                                    <span class="metric-score" id="metricFreq">0.05</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="resetBtn" class="primary-btn mt-4">Analyze Another Image</button>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
